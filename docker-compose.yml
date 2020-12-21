@@ -1,0 +1,45 @@
+version: '3.5'
+
+services:
+  gyptio-builder:
+    container_name: gyptio-builder
+    build: .
+    environment:
+      AUTO_SYNC: 1
+      DATABASE_URL: ${DATABASE_URL:-postgres://postgres:root@db:5432/gyptio}
+      GYPTIO_FOLDER_PUBLIC: ${GYPTIO_FOLDER_PUBLIC:-/public}
+      
+    ports:
+      - "13030:3030"
+    volumes:
+      - ./gyptio-builder:/app
+    networks:
+      - postgresgyptio
+    restart: on-failure
+    depends_on:
+        - db
+    links: 
+        - db:db
+
+  db:
+    container_name: postgres-gyptio
+    image: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-root}
+      POSTGRES_DB: ${POSTGRES_DB:-gyptio}
+      PGDATA: /data/postgres
+
+    ports:
+      - "15432:5432"
+    networks:
+      - postgresgyptio
+    restart: unless-stopped
+  
+networks:
+  postgresgyptio:
+    driver: bridge
+
+volumes:
+  gyptio-builder:
+  db:
