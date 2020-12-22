@@ -4,24 +4,34 @@ services:
   gyptio-builder:
     container_name: gyptio-builder
     build: .
+    command: sh -c "/wait && git pull && npm run start"
     environment:
       AUTO_SYNC: 1
-      DATABASE_URL: ${DATABASE_URL:-postgres://postgres:root@db:5432/gyptio}
+      DATABASE_URL: ${DATABASE_URL:-postgres://postgres:root@postgres:5432/gyptio}
       GYPTIO_FOLDER_PUBLIC: ${GYPTIO_FOLDER_PUBLIC:-/public}
+      USER_DB: ${USER_DB:-postgres}
+      PASSWORD_DB: ${PASSWORD_DB:-root}
+      PORT_DB: ${PORT_DB:-5432}
+      DB: ${DB:-gyptio}
+      HOST_DB: ${HOST_DB:-postgres} 
+      PORT: ${PORT:-3030} 
+      WAIT_HOSTS: postgres:5432
+      WAIT_HOSTS_TIMEOUT: 300
+      WAIT_SLEEP_INTERVAL: 5
+      WAIT_HOST_CONNECT_TIMEOUT: 30
       
     ports:
       - "13030:3030"
     volumes:
-      - ./gyptio-builder:/app
+      - ./.env:/app/.env
     networks:
       - postgresgyptio
-    restart: on-failure
     depends_on:
-        - db
-    links: 
-        - db:db
+        - postgres
 
-  db:
+  postgres:
+    image: "postgres:9.4"
+    hostname: postgres
     container_name: postgres-gyptio
     image: postgres
     environment:
