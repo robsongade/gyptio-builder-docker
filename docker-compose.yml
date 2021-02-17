@@ -4,7 +4,7 @@ services:
   gyptio-builder:
     container_name: gyptio-builder
     build: .
-    command: sh -c "/wait && git pull && npm run start"
+    command: sh -c "/wait && git pull && npm i && npm run start"
     environment:
       AUTO_SYNC: 1
       DATABASE_URL: ${DATABASE_URL:-postgres://postgres:root@postgres:5432/gyptio}
